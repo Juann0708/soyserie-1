@@ -25,6 +25,11 @@ mongoose.connect(process.env.DATABASE, { useNewUrlParser: true },(err) => {
 app.use(express.urlencoded({extended: true}))
 app.use(express.json())
 app.use(cookieParser())
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+  });
 
 app.get('/Series/all', (req,res) => {
     Serie.find({}, (err, series) => {
@@ -32,6 +37,15 @@ app.get('/Series/all', (req,res) => {
         res.status(200).send(series)
     })
 })
+
+app.get("/series/:titulo", (req,res)=>{
+    const idBuscar = req.params.titulo
+    console.log(idBuscar)
+    Serie.find({'titulo': idBuscar}).then(datos =>{
+    res.send(datos)
+    })
+  })
+
 
 app.post('/series/add', (req,res) => {
     const addserie =  new Serie(req.body)
@@ -55,6 +69,24 @@ app.post('/soyserie/resena', (req, res) => {
         })
     })
 })
+
+app.post("/soyserie/:idresena/borrar", (req,res)=>{
+    const idBuscar = req.params.idresena
+    console.log(idBuscar)
+    Resena.findOneAndDelete({'idresena': idBuscar}).then(datos=>{
+      res.send(datos)
+    })
+  })
+
+  app.post("/soyserie/:idresena/actualizar", (req,res) =>{
+    const idBuscar = req.params.idresena
+    console.log(idBuscar)
+    Resena.findOneAndReplace({'idresena': idBuscar}, req.body).then(datos=>{
+        res.send(datos)
+    })
+  })
+
+  
 
 /*app.put('/:id',async(req,res) => {
     const updateSerie = new Serie(req.body)
@@ -80,12 +112,12 @@ app.get("/soyserie/resena/:idresena", (req,res)=>{
   })
 
 
-  app.get('/soyserie/resena/articles', (req, res) => {
-    let order = req.query.order ? req.query.order : 'desc'
+  app.get('/soyserie/resenas/articles', (req, res) => {
+    let order = req.query.order ? req.query.order : 1
     let sortBy = req.query.sortBy ? req.query.sortBy : 'general'
     let limit = req.query.limit ? parseInt(req.query.limit) : 100
     
-    Product
+    Resena
     .find()
     .populate('resenas')    
     .sort([[sortBy, order]])

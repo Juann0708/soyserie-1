@@ -2,7 +2,8 @@ const mongoose = require ('mongoose')
 
 const resenaSchema = mongoose.Schema({ 
     idresena: { required: true, 
-        type: String
+        type: String,
+        unique: 1
     },
     name: { required: true, 
         type: String,
