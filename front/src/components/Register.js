@@ -44,11 +44,11 @@ class Register extends Component{
                     <div className="col-md-6 mt-5 mx-auto">
                         <h1>Registra un usuario</h1>
                         <form onSubmit={this.handleRegisterUser}>
-                            <input placeholder="name" type="text" name="registername" onChange={this.handleChange}/>
-                            <input placeholder="lastname" type="text" name="registerlastname" onChange={this.handleChange}/>
-                            <input placeholder="email" type="text" name="registeremail" onChange={this.handleChange} />
-                            <input placeholder="password" type="password" name="registerpassword" onChange={this.handleChange}/>
-                            <button type="submit">Crear usuario</button>
+                            <input placeholder="name" type="text" className="form-control" name="registername" onChange={this.handleChange}/>
+                            <input placeholder="lastname" type="text" className="form-control" name="registerlastname" onChange={this.handleChange}/>
+                            <input placeholder="email" type="text" className="form-control" name="registeremail" onChange={this.handleChange} />
+                            <input placeholder="password" type="password" className="form-control" name="registerpassword" onChange={this.handleChange}/>
+                            <button type="submit" className="btn btn-primary">Crear usuario</button>
                         </form>
                     </div>
                 </div>

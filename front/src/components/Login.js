@@ -49,9 +49,9 @@ class Login extends Component{
                     <div className="col-md-6 mt-5 mx-auto">
                         <h1>Login</h1>
                         <form onSubmit={this.handleLogin}>
-                            <input placeholder="email" type="text" name="loginemail" onChange={this.handleChange} />
-                            <input placeholder="password" type="password" name="loginpassword" onChange={this.handleChange}/>
-                            <button type="submit">Sign in</button>
+                            <input placeholder="email" type="text" className="form-control" name="loginemail" onChange={this.handleChange} />
+                            <input placeholder="password" type="password" className="form-control" name="loginpassword" onChange={this.handleChange}/>
+                            <button type="submit" className="btn btn-primary">Sign in</button>
                         </form> 
                     </div>
                 </div>

@@ -51,7 +51,7 @@ app.post('/login', (req,res) => {
                 if (err) return res.status(400).send(err)
                 res.cookie('loginBedu',user.token).status(200).json({
                     loginSuccess:true,
-                    message: 'Correcto'+"<br/>usuario"+user.name+"Apellido"+user.lastname+"token",
+                    message: 'Correcto'+"<br/>usuario"+user.name+"Apellido"+user.lastname+"id"+user._id,
                     role: user.role
                 })
             })
@@ -72,7 +72,9 @@ app.get('/profile', (req, res) => {
             if(user.role == 0){
                 return res.json({
                     success:true ,
-                    message: "no es admin"
+                    message: "no es admin",
+                    token: token,
+                    id: user._id
                 })
             }else if(user.role == 1){
                 return res.json({
@@ -115,6 +117,21 @@ app.get('/users', async (req,res) => {
         if(err) return res.status(400).send(err)
         res.status(200).send(users)
     })
+})
+
+app.get('/logout',async (req, res) => {
+    let token = req.cookies.loginBedu
+    //console.log(token+req.body.email)
+    User.findOneAndUpdate(
+        {email: req.body.email},
+        {token: ''},
+        (err, doc) => {
+            if(err) return res.json({success: false, err})
+            return res.status(200).json({
+                success: true
+            })
+        }
+    )
 })
 
 
