@@ -8,6 +8,7 @@ const jwt = require('jsonwebtoken')
 const cors = require('cors')
 
 const  { User } = require('./models/models')
+const { auth } = require('./middelware/auth')
 
 const port = process.env.PORT || 3001
 
@@ -117,7 +118,29 @@ app.get('/users', async (req,res) => {
     })
 })
 
+app.get('/users/auth', auth, (req, res) => {
+    res.status(200).json({
+        isAdmin: req.user.role === 0 ? false : true,
+        isAuth: true,
+        name: req.user.name,
+        lastname: req.user.lastname,
+        email: req.user.email,
+        role: req.user.role
+    })
+})
 
+app.get('/users/logout', auth, (req, res) => {
+    User.findOneAndUpdate(
+        {_id: req.user._id},
+        {token: ''},
+        (err, doc) => {
+            if(err) return res.json({logoutSuccess: false, err})
+            return res.status(200).json({
+                logoutSuccess: true
+            })
+        }
+    )
+})
 
 app.listen(port, () => {
     console.log(`Servidor corriendo en puerto ${port}`)
