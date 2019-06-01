@@ -1,89 +1,99 @@
-import React, { Component } from 'react'
+import React, {Component} from 'react'
 import axios from 'axios'
 
-
-
-class Anadir extends Component {
-
+class Anadir extends Component{
     state = {
-        bigData: null,
+        userData: null
     }
 
-    handleSubmit = event => {
-        event.preventDefault();
-        
+    handleChange = event => {
+        //console.log(this.state)
+        this.setState(
+            {
+                ...this.state,
+                [event.target.name]: event.target.value
+            }
+        );
+    }
+
+    handleRegisterSerie = (event) => {
+        event.preventDefault()
         const serie = {
-            id: this.state.id,
             titulo: this.state.titulo,
             plataforma: this.state.plataforma,
             temporadas: this.state.temporadas,
             año: this.state.año,
-                genero: this.state.genero,
-                cast: this.state.cast
-                }
-            
-            
-        
-
-        axios.post(`http://localhost:3001/series`, serie)
+            genero: this.state.genero,
+            cast: this.state.cast,
+            imagen: this.state.imagen
+        }
+        console.log("esto enviaste:" , serie)
+        axios({
+            method: 'post',
+            baseURL: 'http://localhost:3001/series/add',
+            headers: {'Content-Type': 'application/json'},
+            data: serie
+        })
         .then(res => {
             console.log(res.data)
+            return res.data
         })
     }
-    
 
-    render(props) {
-        const datalist = this.state.bigData ? this.state.bigData : []
-        return (
-            <div>
-                
-                <h1>Login</h1>
-                <form onSubmit={this.handleLogin}>
-                    <input placeholder="email" type="text" name="loginemail" onChange={this.handleChange} />
-                    <input placeholder="password" type="password" name="loginpassword" onChange={this.handleChange}/>
-                    <button type="submit">Add</button>
-                </form>
-                <hr/>
-                <h1>Registra un usuario</h1>
-                <form onSubmit={this.handleRegisterUser}>
-                    <input placeholder="email" type="text" name="registeremail" onChange={this.handleChange} />
-                    <input placeholder="password" type="password" name="registerpassword" onChange={this.handleChange}/>
-                    <input placeholder="name" type="text" name="registername" onChange={this.handleChange}/>
-                    <input placeholder="lastname" type="text" name="registerlastname" onChange={this.handleChange}/>
+    handleRegisterResena = (event) => {
+      event.preventDefault()
+      let serie = {
+          name: this.state.titulo,
+          content: this.state.content,
+          rating: this.state.rating,
+          efectos: this.state.efectos,
+          musica: this.state.musica,
+      }
+      console.log("esto enviaste:" , serie)
+      axios({
+          method: 'post',
+          baseURL: 'http://localhost:3001/soyserie/resena/:titulo',
+          headers: {'Content-Type': 'application/json'},
+          data: serie
+      })
+      .then(res => {
+          console.log(res.data)
+          return res.data
+      })
+  }
 
-                    <button type="submit">Crear usuario</button>
-                </form>
-                <hr/>
-                <h1>Registra un restaurante</h1>
-                <form onSubmit={this.handleSubmit}>
-                                Id: <input type="text" name="id" onChange={this.handleChange} />
-                                <br/>
-                                Rating: <input type="text" name="rating" onChange={this.handleChange} />
-                                <br/>
-                                Name: <input type="text" name="name" onChange={this.handleChange} />
-                                <br/>
-                                Site: <input type="text" name="site" onChange={this.handleChange} />
-                                <br/>
-                                Email: <input type="text" name="email" onChange={this.handleChange} />
-                                <br/>
-                                Phone: <input type="text" name="phone" onChange={this.handleChange} />
-                                <br/>
-                                Street: <input type="text" name="street" onChange={this.handleChange} />
-                                <br/>
-                                City: <input type="text" name="city" onChange={this.handleChange} />
-                                <br/>
-                                State: <input type="text" name="state" onChange={this.handleChange} />
-                                <br/>
-                                Lat: <input type="text" name="lat" onChange={this.handleChange} />
-                                <br/>
-                                Lng: <input type="text" name="lng" onChange={this.handleChange} />
-                                <br/>
-                        <button type="submit">Agregar restaurante</button>
-                    </form>
-                <hr/>
+    render(){
+        return(
+            <div className="container">
+                <div className="row">
+                    <div className="col-md-6 mt-5 mx-auto">
+                        <h1>Registra una serie</h1>
+                        <form onSubmit={this.handleRegisterSerie}>
+                            <input placeholder="Nombre" type="text" className="form-control" name="titulo" onChange={this.handleChange}/>
+                            <input placeholder="Plataforma" type="text" className="form-control" name="plataforma" onChange={this.handleChange}/>
+                            <input placeholder="Temporadas" type="text" className="form-control" name="temporadas" onChange={this.handleChange} />
+                            <input placeholder="Año" type="text" className="form-control" name="año" onChange={this.handleChange}/>
+                            <input placeholder="Genero" type="text" className="form-control" name="genero" onChange={this.handleChange}/>
+                            <input placeholder="Cast" type="text" className="form-control" name="cast" onChange={this.handleChange}/>
+                            <input placeholder="Imagen" type="text" className="form-control" name="imagen" onChange={this.handleChange}/>
+                            <button type="submit" className="btn btn-primary">Añadir serie</button>
+                        </form>
+                        <h1>Añade una reseña</h1>
+                        <form onSubmit={this.handleRegisterResena}>
+                        <input placeholder="Reseña" type="text" className="form-control" name="content" onChange={this.handleChange}/>
+                            <input placeholder="Calificación general" type="text" className="form-control" name="rating" onChange={this.handleChange} />
+                            <input placeholder="Calificación de efectos" type="text" className="form-control" name="efectos" onChange={this.handleChange}/>
+                            <input placeholder="Calificación de la música" type="text" className="form-control" name="musica" onChange={this.handleChange}/>
+
+
+                            <button type="submit" className="btn btn-primary">Añadir reseña</button>
+                        </form>
+
+                    </div>
+                </div>
             </div>
-        );  
+        )
     }
 }
 
-export default Anadir;
+export default Anadir

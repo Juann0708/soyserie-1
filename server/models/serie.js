@@ -16,13 +16,16 @@ const brandSchema = mongoose.Schema({
     },
     año:{
         required: true,
-        type: Date
+        type: Number
     },
     genero:{
         required: true,
         type: String
     },
     cast:{
+        type: String
+    },
+    imagen:{
         type: String
     }
 

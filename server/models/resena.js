@@ -1,13 +1,9 @@
 const mongoose = require ('mongoose')
 
 const resenaSchema = mongoose.Schema({ 
-    idresena: { required: true, 
-        type: String,
-        unique: 1
-    },
     name: { required: true, 
         type: String,
-        unique: 1, 
+        unique: false, 
         maxlength: 100
     },
     content: { required: true,
@@ -27,11 +23,6 @@ const resenaSchema = mongoose.Schema({
         maxlength: 1
     },
     musica:{
-        required: true,
-        type: Number,
-        maxlength: 1
-    },
-    general: {
         required: true,
         type: Number,
         maxlength: 1

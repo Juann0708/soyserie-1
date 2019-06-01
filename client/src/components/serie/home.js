@@ -2,7 +2,6 @@ import React, { Component } from 'react'
 import axios from 'axios'
 import {Link} from 'react-router-dom'
 
-import FilterButton from '../../utils/filter'
 
 class Home extends Component {
     state = {
@@ -23,8 +22,9 @@ class Home extends Component {
                     Object.keys(series).map((key, index) => {
                         return (   
                             <article key={index}>
-                                <a href= {"http://localhost:3000/"+series[key].titulo}> {series[key].titulo} </a>
-                                                                
+                            <Link to={"/"+series[key].titulo}>
+                                <img className = "billboard "alt="Imagen de la serie" src= {series[key].imagen}></img>
+                            </Link>                              
                             </article>
                             )
                          })

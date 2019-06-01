@@ -2,6 +2,7 @@ const mongoose = require('mongoose')
 const cookieParser = require('cookie-parser')
 const express = require('express')
 const app = express()
+const cors = require('cors')
 const bcrypt = require('bcrypt')
 const SALT_I = 10
 const jwt = require('jsonwebtoken')
@@ -12,6 +13,8 @@ const { auth } = require('./middelware/auth')
 
 app.use(express.urlencoded({extended: true}))
 app.use(express.json())
+app.use(cookieParser())
+app.use(cors({credentials: true, origin: 'http://localhost:3000'}));
 const port = process.env.PORT || 3001
 
 require('dotenv').config()
@@ -63,7 +66,7 @@ app.post('/series/add', (req,res) => {
 
 // RESEÑAS
 
-app.post('/soyserie/resena', (req, res) => {
+app.post('/soyserie/resena/:titulo', (req, res) => {
     const resena = new Resena(req.body)
     resena.save((err, doc) => {
         if(err) return res.json({success: false, err})
@@ -72,6 +75,14 @@ app.post('/soyserie/resena', (req, res) => {
             resena: doc
         })
     })
+})
+
+app.get("/series/resenas/:name", (req,res)=>{
+  const idBuscar = req.params.name
+  console.log(idBuscar)
+  Resena.find({'name': idBuscar}).then(datos =>{
+  res.send(datos)
+  })
 })
 
 app.post("/soyserie/:idresena/borrar", (req,res)=>{
@@ -133,59 +144,116 @@ app.get("/soyserie/resena/:idresena", (req,res)=>{
 })
 
 
-// USUARIOS
+app.post('/register', (req, res) => {
+  const user = new User(req.body)
+  user.save((err, doc) => {
+      if(err) return res. json({success: false, err})
+      res.status(200).json({
+          success: true,
+          userdata: doc
+      })
+  })
+})
 
-app.get('/users', (req, res) => {
-    User.find({}, (err, users)=>{
+app.post('/login', (req,res) => {
+  User.findOne({
+      'email': req.body.email
+  }, (err, user) => {
+      if(!user) return res.json({
+          loginSuccess: false,
+          message: 'Datos incorrectos'
+      })
+      user.comparePassword(req.body.password, (err,isMatch) => {
+          if(!isMatch) return res.json({
+              loginSuccess: false,
+              message: 'Datos incorrectos'
+          })
+          user.generateToken((err,user) => {
+              if (err) return res.status(400).send(err)
+              res.cookie('loginBedu',user.token).status(200).json({
+                  loginSuccess:true,
+                  message: 'Correcto'+"<br/>usuario"+user.name+"Apellido"+user.lastname+"id"+user._id,
+                  role: user.role
+              })
+          })
+      })
+      
+  })
+})
+
+app.get('/profile', (req, res) => {
+  let token = req.cookies.loginBedu    
+  User.findByToken(token,(err,user) => {
+      if(err) throw err
+      if(!user){
+          return res.json({
+              error:true 
+          })
+      }else {
+          if(user.role == 0){
+              return res.json({
+                  success:true ,
+                  message: "no es admin",
+                  token: token,
+                  id: user._id
+              })
+          }else if(user.role == 1){
+              return res.json({
+                  success: true,
+                  message: "es Admin"
+              })
+          }
+      } 
+      
+  })
+})
+
+app.get('/profileAdmin', (req, res) => {
+  let token = req.cookies.loginBedu    
+  User.findByToken(token,(err,user) => {
+      if(err) throw err
+      if(!user){
+          return res.json({
+              error:true 
+          })
+      }else {
+          if(user.role == 0){
+              return res.json({
+                  success:true ,
+                  message: "no es admin"
+              })
+          }else if(user.role == 1){
+              return res.json({
+                  success: true,
+                  message: "es Admin"
+              })
+          }
+      } 
+      
+  })
+})
+
+app.get('/users', async (req,res) => {
+  User.find({}, (err,users) => {
       if(err) return res.status(400).send(err)
       res.status(200).send(users)
-    }) 
   })
-  
-  //REGISTRO
-  app.post('/users/register', (req, res) => {
-      const user = new User(req.body)
-      user.save((err, doc) => {
+})
+
+app.get('/logout',async (req, res) => {
+  let token = req.cookies.loginBedu
+  //console.log(token+req.body.email)
+  User.findOneAndUpdate(
+      {email: req.body.email},
+      {token: ''},
+      (err, doc) => {
           if(err) return res.json({success: false, err})
-          res.status(200).json({
-              success: true,
-              userdata: doc
+          return res.status(200).json({
+              success: true
           })
-      })
-  })
-  
-  //AUTENTIFICACION
-  app.get('/users/auth', auth, (req, res) => {
-      res.status(200).json({
-        isAdmin: req.user.role === 0 ? false : true,
-        isAuth: true,
-        email: req.user.email,
-        name: req.user.name,
-        lastname: req.user.lastname
-      })
-    })
-  
-   //LOGIN 
-    app.post('/api/users/login', (req, res) => {
-      // 1. Encuentra el correo
-          User.findOne({'email': req.body.email}, (err,user) => {
-              if(!user) return res.json({loginSuccess: false, message: 'Auth fallida, email no encontrado'})
-     
-      // 2. Obtén el password y compruébalo
-            user.comparePassword(req.body.password, (err, isMatch) => {
-              if(!isMatch) return res.json({loginSuccess: false, message: "Password erróneo"})
-    
-     
-      // 3. Si todo es correcto, genera un token
-            user.generateToken((err, user)=> {
-              if(err) return res.status(400).send(err)
-          // Si todo bien, debemos guardar este token como un "cookie"
-            res.cookie('soyserie_auth', user.token).status(200).json(
-            {loginSuccess: true})
-          })
-        })
-      })
-    })
+      }
+  )
+})
   
 // 5. LISTENER
 
